@@ -1,0 +1,70 @@
+//Lostzl.
+
+#define r1 13
+#define r2 10
+#define y1 12
+#define y2 9
+#define g1 11
+#define g2 8
+#define rp1 7
+#define gp1 6
+#define bot 2
+
+long gtempo;
+bool gpedestre = false;
+int gestagioAtual = 0;
+
+void vermelhopisca(){
+  for (int t = 0; t < 4; t++){
+  digitalWrite(rp1, HIGH);
+  delay(150);
+  digitalWrite(rp1, LOW);
+  delay(150);
+  }
+}
+
+int gintervalo[4][7]{{r1, g1, y1, r1, r1, r1, r1},
+                     {r2, r2, r2, g2, y2, r2, r2},
+                     {rp1, rp1, rp1, rp1, rp1, gp1, rp1},
+                     {5, 10, 3, 10, 3, 10, 4}};
+
+void setup() {
+  for(int x = 4; x < 14; x++){
+   pinMode(x, OUTPUT);
+  }
+  pinMode(bot, INPUT);
+  gtempo = millis();
+  focos(gestagioAtual, HIGH);
+}
+
+void focos(int estagio, int acao){
+  for(byte via=0; via<3; via++)
+  digitalWrite (gintervalo[via][estagio],acao);
+}
+
+void loop(){
+  if((millis() - gtempo)/1000 > gintervalo[3][gestagioAtual]/5){
+    gtempo = millis();
+    focos(gestagioAtual++, LOW);
+    
+    if((gestagioAtual > 4)&&(!gpedestre))
+    gestagioAtual = 1;
+    
+    else if(gestagioAtual > 6){
+      vermelhopisca();
+      gestagioAtual = 1;
+      gpedestre = false;
+    }
+    focos(gestagioAtual, HIGH);
+  }
+  if(!gpedestre)
+    botoeira();
+}
+
+
+void botoeira(){
+  bool corrente = digitalRead(bot);
+  delay(35);
+  corrente = digitalRead(bot);
+  gpedestre = corrente;
+}
