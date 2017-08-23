@@ -1,0 +1,135 @@
+//CLOCK DIGITAL REGRESSIVO:
+// AUTOR: LUKESKYWALKER(Lostzl).
+
+
+#define SHCP 13
+#define DS 12
+#define STCP 11
+#define MR 10
+long tempo;
+int deze;
+int uni;
+int segu1;
+int segu2;
+char verif;
+
+boolean dP[][4] = {{1, 1, 1, 1}};
+
+//PRECISO SABER SÓ COMO COLOCAR VALORES DENTRO DA MATRIX mandaDsp AI TO FEITO CHEF!
+//ESSE PROBLEMA FOI RESOLVIDO!!!
+
+int mandaDsp[4];
+
+boolean numerAC[][7] = { {1, 0, 0, 0, 0, 0, 0}, // 0  -->   g,f,e,d,c,b,a - Anodo Comum
+  {1, 1, 1, 1, 0, 0, 1}, // 1
+  {0, 1, 0, 0, 1, 0, 0}, // 2
+  {0, 1, 1, 0, 0, 0, 0}, // 3
+  {0, 0, 1, 1, 0, 0, 1}, // 4
+  {0, 0, 1, 0, 0, 1, 0}, // 5
+  {0, 0, 0, 0, 0, 1, 0}, // 6
+  {1, 1, 1, 1, 0, 0, 0}, // 7
+  {0, 0, 0, 0, 0, 0, 0}, // 8
+  {0, 0, 1, 0, 0, 0, 0}
+}; // 9
+
+void paraDsp(void){
+  mandaDsp[0] = segu2;
+  mandaDsp[1] = segu1;
+  mandaDsp[2] = uni;
+  mandaDsp[3] = deze;
+}
+  
+void entraValor(void) {
+  menssa();
+  while (Serial.peek() == -1);
+  deze = (Serial.read() - '0');
+  while (Serial.peek() == -1);
+  uni = (Serial.read() - '0');
+  while (Serial.peek() == -1);
+  segu1 = (Serial.read() - '0');
+  while (Serial.peek() == -1);
+  segu2 = (Serial.read() - '0');
+}
+
+// PRECISO DE UMA SEQUENCIA DE 32 CARACTERES EM BINARIO, DAI RESOLVO ESSE CODIGO.
+// ESSE EU JA ARRUMEI PQ NÉ, SÓ DIRETORIA.
+
+void clock(byte pino) {
+  digitalWrite(pino, LOW);
+  delay(2);
+  digitalWrite(pino, HIGH);
+}
+
+void serializa(void) {
+  digitalWrite(MR, LOW);
+  delay(2);
+  digitalWrite(MR, HIGH);
+  for (int j = 0; j < 4; j++) {
+    digitalWrite(DS, dP[0][j]);
+    clock(SHCP);
+    for (int i = 0; i < 7; i++ ) {
+      byte x = numerAC[mandaDsp[j]][i];
+      digitalWrite(DS, x);
+      clock(SHCP);
+    }
+  }
+  Serial.println();
+  clock(STCP);
+}
+
+
+void setup() {
+  pinMode(SHCP, OUTPUT);
+  pinMode(DS, OUTPUT);
+  pinMode(STCP, OUTPUT);
+  pinMode(MR, OUTPUT);
+  Serial.begin(9600);
+  entraValor();
+  tempo = millis();
+}
+
+void menssa(void) {
+  Serial.println("Horas no formato XX:XX");
+}
+
+void loop() {
+  if (millis() - tempo > 500) {
+    tempo = millis();
+    paraDsp();
+    Serial.print("Timer: ");
+    Serial.print(deze); Serial.print(uni); Serial.print(":"); Serial.print(segu1); Serial.print(segu2); Serial.println("");
+    serializa();
+    atualizaTempo();
+  }
+}
+
+
+//TA TUDO NOS CONFORMES
+
+void atualizaTempo(void) {
+  if (Serial.available() > 0) {
+    verif = Serial.read();
+    if (verif == 'p') {
+      Serial.println("Para retomar tecle (c)");
+      while (Serial.read() != 'c');
+    }
+    if (verif == 'r') {
+      entraValor();
+      tempo = millis();
+    }
+  }
+
+  if (--segu2 < 0) {
+    segu2 = 9;
+    if (--segu1 < 0) {
+      segu1 = 5;
+      if (--uni < 0) {
+        uni = 9;
+        if (--deze < 0) {
+          Serial.println("Tempo Esgotado!");
+          while (1);
+        }
+      }
+    }
+  }
+}
