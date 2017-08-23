@@ -1,7 +1,7 @@
 /*Código para capacímetro no Arduíno.
   Alunos:   Arthur Gomes Pidde
             Brenno Araújo de Souza
-            Lucas Vitor de Souza
+            Lucas Vitor de Souza(Lostzl).
 */
 
 #include <LiquidCrystal.h>
