@@ -1,0 +1,81 @@
+\\Lostzl.
+
+#define DSP1 10
+#define DSP2 9
+#define g1 2
+#define y1 3
+#define r1 4
+
+bool gpedestre = false;
+long gtempo;
+int gestagioAtual = 0;
+byte ultimoTempo = 0;
+
+byte gdtempo = 0;
+int cont = 6;
+byte ci[4]={5,6,7,8};
+byte DSP[11][4] = {
+                {0,0,0,0}, //NUMERO 0
+                {0,0,0,1}, //NUMERO 1
+                {0,0,1,0}, //NUMERO 2
+                {0,0,1,1}, //NUMERO 3
+                {0,1,0,0}, //NUMERO 4
+                {0,1,0,1}, //NUMERO 5
+                {0,1,1,0}, //NUMERO 6
+                {0,1,1,1}, //NUMERO 7
+                {1,0,0,0}, //NUMERO 8
+                {1,0,0,1}}; //NUMERO 9
+
+                
+int gintervalo[2][3]{{r1, g1, y1},
+                     {5, 3, 2}};
+         
+
+void focos(int estagio, int acao){
+  digitalWrite (gintervalo[0][estagio],acao);
+}
+
+void numero(byte dig){
+  for(int i = 0; i < 5; i++){
+    digitalWrite(ci[i], DSP[dig][i]);
+  }
+}
+
+void setup(){
+  for(int j = 0; j < 14; j++){
+    pinMode(j, OUTPUT);
+  }
+  digitalWrite(DSP1, LOW);
+  digitalWrite(DSP2, LOW);
+  gdtempo = (millis() / 1000);
+  gtempo = millis();
+   ultimoTempo = millis();
+   focos(gestagioAtual, HIGH);
+}
+
+void contador7seg(){
+  digitalWrite(DSP1, HIGH);
+  numero(cont);
+  delay(20);
+  cont--;
+  if(cont < 0){
+      cont = 5;
+    delay(11000);
+    }
+  delay(1000);
+}
+
+void loop(){
+ contador7seg();
+  delay (20);
+if((millis() - gtempo)/1000 > gintervalo[1][gestagioAtual]){
+    gtempo = millis();
+    focos(gestagioAtual++, LOW);
+    
+    if((gestagioAtual > 3)&&(!gpedestre)){
+    gestagioAtual = 0;
+    }
+    
+    focos(gestagioAtual, HIGH);
+  }
+}
