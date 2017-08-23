@@ -1,0 +1,68 @@
+/*Código para capacímetro no Arduíno.
+  Alunos:   Arthur Gomes Pidde
+            Brenno Araújo de Souza
+            Lucas Vitor de Souza
+*/
+
+#include <LiquidCrystal.h>
+
+#define carrega         7             // Pino 7 carregará o capacitor
+#define descarrega      6             // Pino 6 descarregará o capacitor
+#define resistor        10000.0       // Resistor de carga                                   
+#define capLoad         A0            // Medida de tensão (carga no capacitor) no pino analógico 0
+
+LiquidCrystal lcd(9, 8, 5, 4, 3, 2);
+
+unsigned long tempo1;             // Tempo de início
+unsigned long tempo2;             // Tempo medido
+float microFarads;                // Armazena o valor da capacitância em µF
+float nanoFarads;                 // Armazana o valor da capacitância em nF
+
+void setup() {
+  pinMode(carrega, OUTPUT);           //Configura pino de carga como saída digital
+  digitalWrite(carrega, LOW);         //Configura pino de carga em nível baixo
+  lcd.begin(16, 2);                   //Display lcd 16 x 2
+  lcd.setCursor (1, 0);               //Posiciona cursor na coluna 2, linha 1
+  lcd.print("A. B. L. ELTR4");        //Escreve no display "A. B. L. ELTR4"
+  Serial.begin(9600);                 //Configuração de transmissão dos bits
+  delay (3000);                       //Atraso de 3 segundos
+  lcd.clear ();                       //Limpa a tela 
+  delay (1000);                        //Atraso de 1 segundo
+  lcd.print("Capacimetro ABL");       //Escreve no display "Capacimetro ABL"
+  lcd.setCursor(0, 1);                //Posição da frase
+  lcd.print("Inicio medicao!");       //Escreve "Inicio medicao!"
+  delay (3000);                       //Atraso de 0.3 segundos
+  lcd.clear();                        //Limpa a tela
+  lcd.print("Capacimetro ABL");       //Escreve "Capacimetro ABL"
+}
+
+void loop() {
+  digitalWrite(carrega, HIGH);                          //Saída de carga em nível alto (início do carregamento do capacitor)
+  tempo1 = millis();                                    //Armazena a contagem de programa em milissegundos em tempo1
+  while (analogRead(capLoad) < 648) {                   // Aguarda até atingir 63,2% da tensão da fonte (648 equivale a 63,2% de 1024 (máximo))
+    tempo2 = millis() - tempo1;                         // Calcula o tempo transcorrido
+    microFarads = ((float)tempo2 / resistor) * 1000;    // Calcula a Capacitância em Micro Farads
+  }
+
+  if (microFarads > 1) {              //Se capacitância maior que 1uf, então...
+    lcd.setCursor(5, 1);              //Posiciona cursor na coluna 6, linha 2
+    lcd.print((long)microFarads);     //Escreve valor da capacitância em uF
+    Serial.print(microFarads);
+    lcd.print(" uF");                 //Escreve "uF"
+  }
+
+  else {                                    //Caso contrário...
+    nanoFarads = microFarads * 1000.0;      //Converte uF para nF
+    lcd.setCursor(5, 1);                    //Posiciona cursor na coluna 6, linha 2
+    lcd.print((long)nanoFarads);            //Escreve valor da capacitância em nF
+    lcd.print(" nF");                       //Escreve "nF"
+  }
+
+  digitalWrite(carrega, LOW);                 //Pino de carga fica em nível baixo
+  pinMode(descarrega, OUTPUT);                //Pino de descarga configurado como saída (apenas por um momento)
+  digitalWrite(descarrega, LOW);              //Pino de descarga em nível baixo (descarrega o capacitor)
+  while (analogRead(capLoad) > 0) {           //Aguarda até que a tensão no capacitor chegue a zero
+    pinMode(descarrega, INPUT);               //Pino de descarga volta a ser entrada
+  }
+  delay(300);            //delay para atualização
+}
