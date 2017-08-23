@@ -1,0 +1,18 @@
+\\Lostzl.
+
+int Trpin = 9;
+int s = 0;  \\ Aqui, s = Velocidade do Motor, onde 255 é a Potência Máxima de Rotação.
+
+void setup()   {
+  Serial.begin(9600);
+  pinMode(Trpin, OUTPUT);
+
+}
+
+void loop() {
+  s = 255;
+  analogWrite(Trpin, s);
+  Serial.println(s);
+  delay(100);
+
+}
