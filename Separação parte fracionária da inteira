@@ -1,0 +1,21 @@
+//Lostzl.
+
+int x = 5;
+int val;
+long z;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void calc() {
+  val = x / 10;            // y now contains 0, ints can't hold fractions
+  z = x - (val*10);
+}
+
+void loop() {
+  calc();
+  Serial.print(val);Serial.print(" - "); Serial.print(z); Serial.println("");
+  delay(1000);
+  x++;
+}
