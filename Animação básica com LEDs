@@ -2,8 +2,6 @@
 
 int pinoLed[11] = {2,3,4,5,6,7,8,9,10,11};
 
-int bot = 12;
-
 int cont = 0;
 
 byte estados[14][11] = {
