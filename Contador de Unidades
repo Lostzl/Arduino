@@ -1,0 +1,171 @@
+//CONTADOR DE UNIDADES:
+// AUTOR: LUKESKYWALKER(Lostzl).
+
+#define SHCP 13
+#define DS 12
+#define STCP 11
+#define MR 10
+long tempo;
+int dezena;
+int unidade;
+char verif;
+int addUni = 0;
+int T = 0;
+int U = 0;
+int Trpin = 9;
+int s = 0;
+
+boolean dP[][1] = {{1}};
+
+int mandaDsp[4];
+
+boolean numerAC[][7] = { {1, 0, 0, 0, 0, 0, 0}, // 0  -->   g,f,e,d,c,b,a - Anodo Comum
+  {1, 1, 1, 1, 0, 0, 1}, // 1
+  {0, 1, 0, 0, 1, 0, 0}, // 2
+  {0, 1, 1, 0, 0, 0, 0}, // 3
+  {0, 0, 1, 1, 0, 0, 1}, // 4
+  {0, 0, 1, 0, 0, 1, 0}, // 5
+  {0, 0, 0, 0, 0, 1, 0}, // 6
+  {1, 1, 1, 1, 0, 0, 0}, // 7
+  {0, 0, 0, 0, 0, 0, 0}, // 8
+  {0, 0, 1, 0, 0, 0, 0}
+}; // 9
+
+void paraDsp(void) {
+  mandaDsp[0] = unidade;
+}
+
+void entraValor(void) {
+  unidade = addUni;
+  if (unidade > 9) {
+    addUni = 0;
+  }
+}
+void clock(byte pino) {
+  digitalWrite(pino, LOW);
+  delay(2);
+  digitalWrite(pino, HIGH);
+}
+
+void serializa(void) {
+  digitalWrite(MR, LOW);
+  delay(2);
+  digitalWrite(MR, HIGH);
+  for (int j = 0; j < 1; j++) {
+    digitalWrite(DS, dP[0][j]);
+    clock(SHCP);
+    for (int i = 0; i < 7; i++ ) {
+      byte x = numerAC[mandaDsp[j]][i];
+      digitalWrite(DS, x);
+      clock(SHCP);
+    }
+  }
+  Serial.println();
+  clock(STCP);
+}
+
+void pEntrada(void) {
+  int x = analogRead(A0);
+  byte y = ((x * 255) / 1023);
+  Serial.println("________________");
+  Serial.print("Leitura na A0: "); Serial.println(y);
+  Serial.println(" ");
+  if (y > 200)  {
+    T++;
+  }
+  if (y < 200) {
+    T = 0;
+  }
+
+  if ((y > 200) && (T == 1))  {
+    addUni++;
+  }
+  if ((y < 200) && (T == 0)) {
+    addUni = addUni;
+    T = 0;
+  }
+
+  delay(500);
+  Serial.print("Leitura de T: "); Serial.println(T);
+}
+
+void pSaida(void) {
+  int z = analogRead(A1);
+  byte w = ((z * 255) / 1023);
+  Serial.println("________________");
+  Serial.print("Leitura na A1: "); Serial.println(w);
+  Serial.println(" ");
+  if (w > 200)  {
+    U++;
+  }
+  if (w < 200) {
+    U = 0;
+  }
+
+  if ((w > 200) && (U == 1))  {
+    if (addUni <= 0) {
+      addUni = 1;
+    }
+    addUni--;
+  }
+  if ((w < 200) && (U == 0)) {
+    addUni = addUni;
+    U = 0;
+  }
+}
+
+
+void fastMotor(void) {
+  if (addUni == 0) {
+    s = 127;
+    analogWrite(Trpin, s);
+    delay(100);
+  }
+  if (addUni == 2) {
+    analogWrite(Trpin, 89);
+    delay(100);
+  }
+  if (addUni == 3) {
+    analogWrite(Trpin, 64);
+    delay(100);
+  }
+  if (addUni == 4) {
+    analogWrite(Trpin, 64);
+    delay(100);
+  }
+}
+
+
+
+void setup() {
+  pinMode(Trpin, OUTPUT);
+  pinMode(SHCP, OUTPUT);
+  pinMode(DS, OUTPUT);
+  pinMode(STCP, OUTPUT);
+  pinMode(MR, OUTPUT);
+  pinMode(A0, INPUT);
+  Serial.begin(9600);
+  tempo = millis();
+}
+
+void menssa(void) {
+  Serial.println(" ");
+  Serial.println(" - Contagem! - ");
+  Serial.println("________________");
+}
+
+void loop() {
+  if (millis() - tempo > 200) {
+    tempo = millis();
+    fastMotor();
+    menssa();
+    Serial.println("________________");
+    Serial.print(" 3 - Quantidade: ");
+    Serial.print(unidade); Serial.println("");
+    paraDsp();
+    pEntrada();
+    pSaida();
+    entraValor();
+    serializa();
+  }
+}
