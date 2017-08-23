@@ -1,0 +1,46 @@
+//Lostzl.
+
+int pinoLed[11] = {2,3,4,5,6,7,8,9,10,11};
+
+int bot = 12;
+
+int cont = 0;
+
+byte estados[14][11] = {
+                         {1,0,0,0,0,0,0,0,0,0},
+                         {1,1,0,0,0,0,0,0,0,0},
+                         {0,1,1,0,0,0,0,0,0,0},
+                         {0,0,1,1,0,0,0,0,0,0},
+                         {0,0,0,1,1,0,0,0,0,0},
+                         {0,0,0,0,1,1,0,0,0,0},
+                         {0,0,0,0,0,1,1,0,0,0},
+                         {0,0,0,0,0,0,1,1,0,0},
+                         {0,0,0,0,0,0,0,1,1,0},
+                         {0,0,0,0,0,0,0,0,1,1},
+                         {0,0,0,0,0,0,0,0,0,1},
+                         };
+
+
+void setup() {
+ for(int i = 2; i < 12; i++){
+  pinMode(i, OUTPUT);
+  pinMode(bot, INPUT);
+ }
+}
+
+
+void acendeLed(int dig){
+  for(int y = 0; y < 12; y++){
+    digitalWrite(pinoLed[y], estados[dig][y]);
+  }
+}
+
+void loop() {
+  acendeLed(cont);
+  delay(500);
+  cont++;
+  if(cont > 13){
+    cont = 0;
+  }
+  delay(25);
+}
