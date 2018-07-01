@@ -1,5 +1,5 @@
 //CLOCK DIGITAL REGRESSIVO:
-// AUTOR: LUKESKYWALKER(Lostzl).
+// AUTOR: (Lostzl).
 
 
 #define SHCP 13
@@ -14,9 +14,6 @@ int segu2;
 char verif;
 
 boolean dP[][4] = {{1, 1, 1, 1}};
-
-//PRECISO SABER SÓ COMO COLOCAR VALORES DENTRO DA MATRIX mandaDsp AI TO FEITO CHEF!
-//ESSE PROBLEMA FOI RESOLVIDO!!!
 
 int mandaDsp[4];
 
@@ -50,9 +47,6 @@ void entraValor(void) {
   while (Serial.peek() == -1);
   segu2 = (Serial.read() - '0');
 }
-
-// PRECISO DE UMA SEQUENCIA DE 32 CARACTERES EM BINARIO, DAI RESOLVO ESSE CODIGO.
-// ESSE EU JA ARRUMEI PQ NÉ, SÓ DIRETORIA.
 
 void clock(byte pino) {
   digitalWrite(pino, LOW);
@@ -102,9 +96,6 @@ void loop() {
     atualizaTempo();
   }
 }
-
-
-//TA TUDO NOS CONFORMES
 
 void atualizaTempo(void) {
   if (Serial.available() > 0) {
